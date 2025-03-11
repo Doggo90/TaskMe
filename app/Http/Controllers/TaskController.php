@@ -12,12 +12,12 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Task::where('completed', false)->get();
+        $tasks = Task::where('completed', false)->latest()->get();
         return view('pages.dashboard', compact('tasks'));
     }
     public function completed()
     {
-        $tasks = Task::where('completed', true)->get();
+        $tasks = Task::where('completed', true)->latest()->get();
         return view('pages.completed', compact('tasks'));
     }
 
@@ -64,7 +64,10 @@ class TaskController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $task = Task::find($id);
+
+        return view('pages.edit', compact('task'));
+
     }
 
     /**
@@ -72,7 +75,15 @@ class TaskController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required',
+            'body' => 'required',
+        ]);
+
+        $task = Task::find($id);
+        $task->update($validated);
+        flash()->info('Task updated');
+        return redirect()->route('task.dashboard');
     }
 
     /**
